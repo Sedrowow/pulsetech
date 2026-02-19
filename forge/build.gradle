@@ -1,0 +1,79 @@
+plugins {
+    id 'java-library'
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+
+version = "${forge_mc_version}-${forge_mod_version}"
+group = 'dev.hyperlynx'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'parchment', version: "${forge_parchment_mappings_version}-${forge_mc_version}"
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'forge.enabledGameTestNamespaces', 'pulsetech'
+            mods {
+                pulsetech {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--nogui'
+            property 'forge.enabledGameTestNamespaces', 'pulsetech'
+            mods {
+                pulsetech {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--mod', 'pulsetech', '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+            mods {
+                pulsetech {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    maven { url = 'https://maven.createmod.net' }
+    maven { url = 'https://maven.ithundxr.dev/snapshots' }
+    maven {
+        name = "Jared's maven"
+        url = 'https://maven.blamejared.com/'
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${forge_mc_version}-${forge_version}"
+
+    // Ponder for Forge 1.20.1 (optional - comment out if unavailable)
+    compileOnly "net.createmod.ponder:ponder-forge:${forge_ponder_version}+mc${forge_mc_version}"
+    runtimeOnly "net.createmod.ponder:ponder-forge:${forge_ponder_version}+mc${forge_mc_version}"
+}
+
+base {
+    archivesName = 'pulsetech'
+}
