@@ -8,7 +8,6 @@ import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.network.PacketDistributor;
 
 public class SequenceChooseScreen extends Screen {
     private InputSequenceWidget sequence_widget;

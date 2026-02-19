@@ -12,7 +12,6 @@ import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;

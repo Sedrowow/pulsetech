@@ -8,7 +8,6 @@ import net.minecraftforge.network.PacketDistributor;
 import dev.hyperlynx.pulsetech.util.Color;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

@@ -1,7 +1,6 @@
 package dev.hyperlynx.pulsetech.feature.debugger;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.PacketDistributor;
 
 /// Implemented by BlockEntities that can provide information to the Debugger system.
 public interface DebuggerInfoSource {

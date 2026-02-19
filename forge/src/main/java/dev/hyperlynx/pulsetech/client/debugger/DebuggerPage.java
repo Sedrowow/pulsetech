@@ -5,8 +5,6 @@ import dev.hyperlynx.pulsetech.network.ModMessages;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraftforge.network.PacketDistributor;
 
 public abstract class DebuggerPage implements Renderable {
     protected final int id;
