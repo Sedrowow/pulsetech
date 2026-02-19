@@ -4,6 +4,8 @@ import dev.hyperlynx.pulsetech.registration.ModItems;
 
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
+
+import java.util.function.Consumer;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 
@@ -14,7 +16,7 @@ public class RecipeGenerator extends RecipeProvider {
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput output) {
+    protected void buildRecipes(Consumer<FinishedRecipe> output) {
         ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ModItems.PULSE_MODULE)
                 .pattern(" g ")
                 .pattern("rcr")

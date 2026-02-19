@@ -50,15 +50,19 @@ public class ProtocolRegistry {
 
         add(ModBlockEntityTypes.CANNON, ProtocolBuilder.builder(2)
                 .add(CannonBlock.TARGET)
+                .add(CannonBlock.NUDGE)
                 .add(CannonBlock.FIRE)
                 .build());
 
         add(ModBlockEntityTypes.ORB, ProtocolBuilder.builder(3)
-                .add(OrbBlock.MOVE)
-                .add(OrbBlock.HOME)
+                .add(OrbBlock.SPAWN)
+                .add(OrbBlock.MOVE_RELATIVE_X)
+                .add(OrbBlock.MOVE_RELATIVE_Y)
+                .add(OrbBlock.MOVE_RELATIVE_Z)
+                .add(OrbBlock.MOVE_TO)
                 .add(OrbBlock.GRAB)
-                .add(OrbBlock.DROP)
-                .add(OrbBlock.RECALL)
+                .add(OrbBlock.TOGGLE_PEN)
+                .add(OrbBlock.TOGGLE_PROJECTILE)
                 .build());
     }
 

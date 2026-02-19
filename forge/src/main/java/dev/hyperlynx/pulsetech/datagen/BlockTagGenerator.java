@@ -20,7 +20,7 @@ public class BlockTagGenerator extends BlockTagsProvider {
     }
 
     @Override
-    protected void addTags(net.minecraft.core.HolderLookup.Provider provider) {
+    protected void addTags() {
         tag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .add(
                         net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(ModBlocks.CANNON.get()),
