@@ -1,0 +1,31 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="CC BY-NC 4.0"
+issueTrackerURL="https://github.com/hjake123/pulsetech/issues"
+
+[[mods]]
+modId="pulsetech"
+version="1.20.1-1.0.3"
+displayName="Pulsetech"
+displayURL="https://github.com/hjake123/pulsetech"
+logoFile="icon.png"
+credits="Ponder by the Create Mod team; Various CC0 sounds from freesound.org"
+authors="Hyperlynx"
+description="A tech mod about serial communication with redstone."
+
+[[mixins]]
+config="pulsetech.mixins.json"
+
+[[dependencies.pulsetech]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47.3,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.pulsetech]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

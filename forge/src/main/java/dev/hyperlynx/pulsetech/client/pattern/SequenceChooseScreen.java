@@ -1,0 +1,50 @@
+package dev.hyperlynx.pulsetech.client.pattern;
+
+import dev.hyperlynx.pulsetech.feature.pattern.SequenceSelectMessage;
+import dev.hyperlynx.pulsetech.network.ModMessages;
+import net.minecraftforge.network.PacketDistributor;
+import dev.hyperlynx.pulsetech.core.PatternHolder;
+import net.minecraft.client.gui.navigation.ScreenAxis;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.network.PacketDistributor;
+
+public class SequenceChooseScreen extends Screen {
+    private InputSequenceWidget sequence_widget;
+    private final PatternHolder holder;
+    private final BlockPos pos;
+
+    public SequenceChooseScreen(BlockPos pos, PatternHolder bearer) {
+        super(Component.empty());
+        this.holder = bearer;
+        this.pos = pos;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        sequence_widget = new InputSequenceWidget(this.getRectangle().getCenterInAxis(ScreenAxis.HORIZONTAL),
+                this.getRectangle().getCenterInAxis(ScreenAxis.VERTICAL),
+                200, 100, holder.getPattern());
+        addRenderableWidget(sequence_widget);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        sequence_widget.tick();
+    }
+
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return sequence_widget.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void onClose() {
+        super.onClose();
+        ModMessages.CHANNEL.send(PacketDistributor.SERVER.noArg(), new SequenceSelectMessage(pos, sequence_widget.getSequence()));
+    }
+}

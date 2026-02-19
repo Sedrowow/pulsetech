@@ -1,0 +1,53 @@
+package dev.hyperlynx.pulsetech.core.program;
+
+import dev.hyperlynx.pulsetech.feature.console.ConsoleLineMessage;
+import dev.hyperlynx.pulsetech.network.ModMessages;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.PacketDistributor;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+/// Interface that abstracts Consoles and Processors to allow both (and any future other blocks) to run Programs.
+public interface ProgramExecutor {
+    Map<String, List<String>> getMacros();
+    HashSet<String> getHiddenMacros();
+    BlockPos getBlockPos();
+    boolean isConsole();
+    void setCommandMode(CommandMode commandMode);
+    void setChanged();
+    CommandMode getCommandMode();
+    ProgramEmitterModule getEmitter();
+    void setActive(boolean b);
+    int getUnwrapCount();
+    void incrementUnwrapCount();
+    void resetUnwrapCount();
+
+    default void sendLineIfConsole(@Nullable ServerPlayer player, String line) {
+        if(isConsole() && player != null) {
+            ModMessages.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ConsoleLineMessage(getBlockPos(), line));
+        }
+    }
+
+    default void toggleMacroHidden(String macro) {
+        if(getHiddenMacros().contains(macro)) {
+            getHiddenMacros().remove(macro);
+        } else {
+            getHiddenMacros().add(macro);
+        }
+        setChanged();
+    }
+
+    default boolean isHidden(String key) {
+        return getHiddenMacros().contains(key);
+    }
+
+    default void addMacro(String noun, List<String> definition) {
+        getMacros().put(noun, definition);
+    }
+}

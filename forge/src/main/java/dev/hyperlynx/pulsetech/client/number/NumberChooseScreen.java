@@ -1,0 +1,166 @@
+package dev.hyperlynx.pulsetech.client.number;
+
+import dev.hyperlynx.pulsetech.client.SequenceDisplayWidget;
+import dev.hyperlynx.pulsetech.core.Sequence;
+import dev.hyperlynx.pulsetech.feature.number.NumberSelectMessage;
+import dev.hyperlynx.pulsetech.network.ModMessages;
+import net.minecraftforge.network.PacketDistributor;
+import dev.hyperlynx.pulsetech.feature.number.block.NumberEmitterBlockEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.navigation.ScreenAxis;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.network.PacketDistributor;
+import org.lwjgl.glfw.GLFW;
+
+import javax.annotation.Nullable;
+
+public class NumberChooseScreen extends Screen {
+    private final NumberEmitterBlockEntity emitter;
+    private final BlockPos pos;
+    private EditBox number_box;
+    private Button submit_button;
+    private Button plus_one_button;
+    private Button plus_sixteen_button;
+    private Button minus_one_button;
+    private Button minus_sixteen_button;
+    private SequenceDisplayWidget sequence_display;
+
+    public NumberChooseScreen(BlockPos pos, NumberEmitterBlockEntity emitter) {
+        super(Component.empty());
+        this.emitter = emitter;
+        this.pos = pos;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        number_box = new EditBox(Minecraft.getInstance().font, this.getRectangle().getCenterInAxis(ScreenAxis.HORIZONTAL) - 16,
+                this.getRectangle().getCenterInAxis(ScreenAxis.VERTICAL) - 20,
+                32, 20,
+                Component.empty());
+        number_box.setMaxLength(4);
+        number_box.setValue("" + emitter.getNumber());
+        number_box.setResponder(this::updateValidity);
+        addRenderableWidget(number_box);
+
+        submit_button = Button.builder(Component.translatable("gui.pulsetech.apply"), button -> applyChangesAndClose()).build();
+        submit_button.setPosition(this.getRectangle().getCenterInAxis(ScreenAxis.HORIZONTAL) - 25,
+                this.getRectangle().getCenterInAxis(ScreenAxis.VERTICAL) + 2);
+        submit_button.setSize(50, 20);
+        addRenderableWidget(submit_button);
+
+        plus_one_button = Button.builder(Component.translatable("gui.pulsetech.plus_one"), button -> pressModifyValue(1)).build();
+        plus_one_button.setPosition(this.getRectangle().getCenterInAxis(ScreenAxis.HORIZONTAL) + 18,
+                this.getRectangle().getCenterInAxis(ScreenAxis.VERTICAL) - 20);
+        plus_one_button.setSize(16, 20);
+        addRenderableWidget(plus_one_button);
+
+        plus_sixteen_button = Button.builder(Component.translatable("gui.pulsetech.plus_sixteen"), button -> pressModifyValue(16)).build();
+        plus_sixteen_button.setPosition(this.getRectangle().getCenterInAxis(ScreenAxis.HORIZONTAL) + 36,
+                this.getRectangle().getCenterInAxis(ScreenAxis.VERTICAL) - 20);
+        plus_sixteen_button.setSize(24, 20);
+        addRenderableWidget(plus_sixteen_button);
+
+        minus_one_button = Button.builder(Component.translatable("gui.pulsetech.minus_one"), button -> pressModifyValue(-1)).build();
+        minus_one_button.setPosition(this.getRectangle().getCenterInAxis(ScreenAxis.HORIZONTAL) - 34,
+                this.getRectangle().getCenterInAxis(ScreenAxis.VERTICAL) - 20);
+        minus_one_button.setSize(16, 20);
+        addRenderableWidget(minus_one_button);
+
+        minus_sixteen_button = Button.builder(Component.translatable("gui.pulsetech.minus_sixteen"), button -> pressModifyValue(-16)).build();
+        minus_sixteen_button.setPosition(this.getRectangle().getCenterInAxis(ScreenAxis.HORIZONTAL) - 60,
+                this.getRectangle().getCenterInAxis(ScreenAxis.VERTICAL) - 20);
+        minus_sixteen_button.setSize(24, 20);
+        addRenderableWidget(minus_sixteen_button);
+
+        sequence_display = new SequenceDisplayWidget(this.getRectangle().getCenterInAxis(ScreenAxis.HORIZONTAL) - 66,
+                this.getRectangle().getCenterInAxis(ScreenAxis.VERTICAL) - 50,10, 10);
+        sequence_display.visible = false;
+        addRenderableWidget(sequence_display);
+
+        updateValidity(number_box.getValue());
+        setInitialFocus(number_box);
+    }
+
+    private void pressModifyValue(int amount) {
+        Byte prior_value = tryParse(number_box.getValue());
+        if(prior_value == null) {
+            return;
+        }
+        number_box.setValue("" + (prior_value + amount));
+        updateValidity(number_box.getValue());
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if(keyCode == GLFW.GLFW_KEY_ENTER) {
+            applyChangesAndClose();
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private void updateValidity(String s) {
+        Byte value = tryParse(s);
+        boolean valid = value != null;
+        submit_button.active = valid;
+        if(valid) {
+            submit_button.setTooltip(Tooltip.create(Component.literal("")));
+            plus_one_button.active = value < Byte.MAX_VALUE;
+            plus_sixteen_button.active = (value + 16) <= Byte.MAX_VALUE;
+            minus_one_button.active = value > Byte.MIN_VALUE;
+            minus_sixteen_button.active = (value - 16) >= Byte.MIN_VALUE;
+
+            sequence_display.setSequence(Sequence.fromByte(value));
+            sequence_display.visible = true;
+            return;
+        }
+        plus_one_button.active = false;
+        plus_sixteen_button.active = false;
+        minus_one_button.active = false;
+        minus_sixteen_button.active = false;
+        sequence_display.visible = false;
+
+        // Test if it's a valid integer of the wrong size for tooltip
+        int parsed_value;
+        try {
+            parsed_value = Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            submit_button.setTooltip(Tooltip.create(Component.translatable("gui.pulsetech.invalid_number")));
+            return;
+        }
+
+        if(parsed_value > Byte.MAX_VALUE) {
+            submit_button.setTooltip(Tooltip.create(Component.translatable("gui.pulsetech.number_too_big")));
+            return;
+        }
+        if(parsed_value < Byte.MIN_VALUE) {
+            submit_button.setTooltip(Tooltip.create(Component.translatable("gui.pulsetech.number_too_small")));
+            return;
+        }
+
+        submit_button.setTooltip(Tooltip.create(Component.literal("???")));
+    }
+
+    private @Nullable Byte tryParse(String str) {
+        try {
+            return Byte.parseByte(str);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+    }
+
+    private void applyChangesAndClose() {
+        Byte number = tryParse(number_box.getValue());
+        if(number != null) {
+            ModMessages.CHANNEL.send(PacketDistributor.SERVER.noArg(), new NumberSelectMessage(pos, number));
+            emitter.setNumber(number);
+            Minecraft.getInstance().setScreen(null);
+        }
+    }
+}
